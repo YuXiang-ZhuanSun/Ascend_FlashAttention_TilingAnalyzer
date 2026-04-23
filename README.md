@@ -7,7 +7,7 @@
 
 [中文 README](README.zh-CN.md) | [English README](README.md) | [Sister Project: MatMul Tiling Analyzer](https://github.com/YuXiang-ZhuanSun/ascend_matmul_tiling_analyzer)
 
-![FlashAttention Tiling Analyzer Banner](assets/brand/hero-banner.png)
+![FlashAttention Tiling Analyzer Banner](assets/brand/banner.png)
 
 FlashAttention. Decoded.
 
