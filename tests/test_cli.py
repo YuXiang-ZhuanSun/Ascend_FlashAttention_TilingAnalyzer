@@ -86,6 +86,10 @@ class CliIntegrationTests(unittest.TestCase):
             self.assertIn("C00 vector", svg_content)
             self.assertIn("B0 H0", svg_content)
             self.assertIn("qblk x kvblk", svg_content)
+            self.assertIn("host_branch=default_value_d_le_128", svg_content)
+            self.assertIn("dn_branch=no_dn_sinner_override", svg_content)
+            self.assertIn("tiling_key=QFP16_KVFP16_OUTFP16_BNSD_HIGHPRECISION_HIGHLEVELAPI_MDL_CUBEVECTORDIFF_NEWTILING", svg_content)
+            self.assertIn("value=1000000000000001612", svg_content)
 
 
 if __name__ == "__main__":

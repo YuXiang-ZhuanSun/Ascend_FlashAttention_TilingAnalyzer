@@ -75,6 +75,7 @@ The current shipped path uses:
 That is why replay output now contains:
 
 - case-level `kernel_execution_model`
+- case-level `tiling_trace`
 - per-core `kernel_execution`
 
 These fields explain how one logical tiling group maps to two physical lanes that share the same host-side work window but participate in different vector/cube roles.
@@ -85,5 +86,6 @@ These fields explain how one logical tiling group maps to two physical lanes tha
 - `core_assignments`: physical cores after lane expansion
 - `task_units`: finest replay unit with `(sid, nid, spos)` and block coverage
 - `task_segments`: contiguous compression for inspection
+- `tiling_trace`: host-side split branch, branch condition results, DN override state, selected tiling key, numeric tiling key value, and candidate dispatch branches
 - `kernel_execution_model`: kernel-side entry / dispatch / tiling-key context for the case
 - `core_assignments[].kernel_execution`: kernel execution context for one physical core

@@ -79,6 +79,24 @@ class PromptFlashAttentionV2ReplayTests(unittest.TestCase):
             result["kernel_execution_model"]["candidate_dispatches"][0]["implementation"],
             "PromptFlashAttentionS1s2Bns1X910",
         )
+        self.assertEqual(
+            result["tiling"]["tilingKeyName"],
+            "QFP16_KVFP16_OUTFP16_BNSD_HIGHPRECISION_HIGHLEVELAPI_MDL_CUBEVECTORDIFF_NEWTILING",
+        )
+        self.assertEqual(result["tiling"]["tilingKey"], "1000000000000001612")
+        self.assertEqual(
+            result["tiling_trace"]["host_path"]["split_factor_selection"]["selected_branch"],
+            "default_value_d_le_128",
+        )
+        self.assertFalse(result["tiling_trace"]["host_path"]["dn_sinner_override"]["applied"])
+        self.assertEqual(
+            result["tiling_trace"]["kernel_path"]["selected_tiling_key"]["value"],
+            "1000000000000001612",
+        )
+        self.assertEqual(
+            result["kernel_execution_model"]["candidate_dispatches"][0]["tiling_key_value"],
+            "1000000000000001612",
+        )
 
     def test_replay_multi_batch_case(self) -> None:
         case = self.case_lookup["aclnnPromptFlashAttentionV3_test122_m5_B2"]
@@ -102,6 +120,8 @@ class PromptFlashAttentionV2ReplayTests(unittest.TestCase):
             all(case["kernel_execution_model"]["candidate_dispatches"] for case in payload["cases"])
         )
         self.assertEqual({case["split_core_mode"] for case in payload["cases"]}, {"SPLIT_NBS_CUBE"})
+        self.assertTrue(all(case["tiling_trace"]["kernel_path"]["selected_tiling_key"] for case in payload["cases"]))
+        self.assertTrue(all(case["tiling"]["tilingKey"] for case in payload["cases"]))
 
 
 if __name__ == "__main__":

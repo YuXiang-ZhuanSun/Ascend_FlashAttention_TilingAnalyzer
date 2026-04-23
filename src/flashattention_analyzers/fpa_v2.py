@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import html
+import re
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +26,7 @@ SINNER_FACTOR_SUB = 64
 SINNER_FACTOR_DEFAULT = 128
 SINNER_FACTOR_DOUBLE = 256
 CV_RATIO = 2
+TILING_KEY_DEFINE_RE = re.compile(r"#define\s+(?P<name>\w+)\s+(?P<value>\d+)")
 
 
 class PromptFlashAttentionV2Replayer:
@@ -217,15 +219,13 @@ class PromptFlashAttentionV2Replayer:
         }
 
     def replay_case(self, case: PromptFlashAttentionCase, platform: PlatformProfile) -> dict[str, Any]:
-        s_outer_factor, s_inner_factor, softmax_s_outer_factor = self._select_split_factors(case, platform)
-        if self._enable_dn(case, s_outer_factor):
-            if (
-                case.query_d == case.value_d
-                and case.query_d == 64
-                and all(length % 32 == 0 for length in case.actual_seq_lengths)
-                and all(length > 128 for length in case.actual_seq_lengths_kv)
-            ):
-                s_inner_factor = 256
+        split_trace = self._select_split_factors_trace(case, platform)
+        s_outer_factor = int(split_trace["result"]["singleProcessSOuterSize"])
+        s_inner_factor = int(split_trace["result"]["singleProcessSInnerSize"])
+        softmax_s_outer_factor = int(split_trace["result"]["softmaxSOuterSize"])
+        dn_trace = self._dn_override_trace(case, s_outer_factor, s_inner_factor)
+        if dn_trace["applied"]:
+            s_inner_factor = int(dn_trace["result"]["singleProcessSInnerSize"])
 
         effective_s_outer = s_outer_factor * CV_RATIO
         sparse_pre_tokens, sparse_next_tokens = self._sparse_tokens(case)
@@ -246,8 +246,14 @@ class PromptFlashAttentionV2Replayer:
             ceil_div(length, s_inner_factor) for length in case.actual_seq_lengths_kv
         )
         kernel_context = self._kernel_case_context(case, s_outer_factor, s_inner_factor, platform)
+        tiling_trace = self._tiling_trace(
+            split_trace=split_trace,
+            dn_trace=dn_trace,
+            kernel_context=kernel_context,
+        )
         physical_assignments = self._attach_kernel_execution(physical_assignments, kernel_context)
         source_hash = self._source_hash()
+        selected_tiling_key = kernel_context.get("selected_tiling_key") or {}
         return {
             "case_id": case.case_id,
             "api_name": case.api_name,
@@ -273,7 +279,10 @@ class PromptFlashAttentionV2Replayer:
                 "sparseMode": case.sparse_mode,
                 "sparsePreTokens": sparse_pre_tokens,
                 "sparseNextTokens": sparse_next_tokens,
+                "tilingKey": selected_tiling_key.get("value"),
+                "tilingKeyName": selected_tiling_key.get("symbol"),
             },
+            "tiling_trace": tiling_trace,
             "logical_core_assignments": logical_assignments,
             "core_assignments": physical_assignments,
             "validation": validation,
@@ -312,6 +321,11 @@ class PromptFlashAttentionV2Replayer:
                     "s_outer": case["tiling"]["singleProcessSOuterSize"],
                     "s_inner": case["tiling"]["singleProcessSInnerSize"],
                     "effective_s_outer": case["tiling"]["effectiveSplitSOuterSize"],
+                    "host_tiling_branch": case["tiling_trace"]["host_path"]["split_factor_selection"][
+                        "selected_branch"
+                    ],
+                    "tiling_key": case["tiling"]["tilingKey"],
+                    "tiling_key_name": case["tiling"]["tilingKeyName"],
                     "coverage_ok": case["validation"]["coverage_ok"],
                     "weight_ok": case["validation"]["weighted_coverage_ok"],
                 }
@@ -323,11 +337,28 @@ class PromptFlashAttentionV2Replayer:
         units = int(case_result["validation"]["total_unit_count"])
         width = 1840
         margin = 32
-        header_height = 98
+        header_height = 156
         content_width = width - (margin * 2)
         coverage_bar_width = 180
         cell_size = self._heatmap_cell_size(case_result)
         pane_content_width = content_width - coverage_bar_width - 44
+        tiling = case_result.get("tiling", {})
+        tiling_trace = case_result.get("tiling_trace", {})
+        host_trace = tiling_trace.get("host_path", {})
+        split_trace = host_trace.get("split_factor_selection", {})
+        dn_trace = host_trace.get("dn_sinner_override", {})
+        kernel_trace = tiling_trace.get("kernel_path", {})
+        selected_tiling_key = kernel_trace.get("selected_tiling_key") or {}
+        tiling_key_name = selected_tiling_key.get("symbol") or tiling.get("tilingKeyName") or "unknown"
+        tiling_key_value = selected_tiling_key.get("value") or tiling.get("tilingKey") or "unknown"
+        host_branch = split_trace.get("selected_branch", "unknown")
+        dn_branch = dn_trace.get("selected_branch", "unknown")
+        dn_applied = dn_trace.get("applied", "unknown")
+        dispatch_function = kernel_trace.get(
+            "dispatch_function",
+            case_result.get("kernel_execution_model", {}).get("arch_dispatch", "unknown"),
+        )
+        candidate_count = kernel_trace.get("candidate_count", "unknown")
         sections: list[dict[str, Any]] = []
         current_y = header_height
         for index, assignment in enumerate(assignments):
@@ -354,22 +385,48 @@ class PromptFlashAttentionV2Replayer:
         parts = [
             f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
             '<rect width="100%" height="100%" fill="#f8fafc" />',
+            (
+                "<desc>"
+                f'host_branch={html.escape(str(host_branch))}; '
+                f'dn_branch={html.escape(str(dn_branch))}; '
+                f'tiling_key={html.escape(str(tiling_key_name))}; '
+                f'tiling_key_value={html.escape(str(tiling_key_value))}; '
+                f'dispatch={html.escape(str(dispatch_function))}'
+                "</desc>"
+            ),
             f'<text x="{margin}" y="28" font-size="18" font-family="monospace" fill="#111827">{html.escape(case_result["case_id"])}</text>',
             (
                 f'<text x="{margin}" y="48" font-size="12" font-family="monospace" fill="#334155">'
                 f'used_physical_cores={case_result["used_physical_cores"]}, '
                 f'logical_core_groups={case_result["logical_core_groups"]}, '
-                f's_outer={case_result["tiling"]["singleProcessSOuterSize"]}, '
-                f's_inner={case_result["tiling"]["singleProcessSInnerSize"]}'
+                f's_outer={tiling["singleProcessSOuterSize"]}, '
+                f's_inner={tiling["singleProcessSInnerSize"]}'
                 "</text>"
             ),
             (
                 f'<text x="{margin}" y="68" font-size="12" font-family="monospace" fill="#334155">'
+                f'host_branch={html.escape(str(host_branch))}, '
+                f'dn_branch={html.escape(str(dn_branch))}, dn_applied={html.escape(str(dn_applied))}'
+                "</text>"
+            ),
+            (
+                f'<text x="{margin}" y="88" font-size="12" font-family="monospace" fill="#334155">'
+                f'tiling_key={html.escape(self._truncate_text(str(tiling_key_name), 128))}, '
+                f'value={html.escape(str(tiling_key_value))}'
+                "</text>"
+            ),
+            (
+                f'<text x="{margin}" y="108" font-size="12" font-family="monospace" fill="#334155">'
+                f'kernel_dispatch={html.escape(str(dispatch_function))}, candidate_tiling_keys={html.escape(str(candidate_count))}'
+                "</text>"
+            ),
+            (
+                f'<text x="{margin}" y="128" font-size="12" font-family="monospace" fill="#334155">'
                 "Each section is one physical core. Left: unit-index coverage. Right: per-(batch,head) Q x KV block heatmaps."
                 "</text>"
             ),
             (
-                f'<text x="{margin}" y="86" font-size="11" font-family="monospace" fill="#475569">'
+                f'<text x="{margin}" y="146" font-size="11" font-family="monospace" fill="#475569">'
                 "Inside each pane, y = Souter block index, x = Sinner block index, filled cells = blocks executed by this core."
                 "</text>"
             ),
@@ -458,10 +515,26 @@ class PromptFlashAttentionV2Replayer:
     def _select_split_factors(
         self, case: PromptFlashAttentionCase, platform: PlatformProfile
     ) -> tuple[int, int, int]:
+        trace = self._select_split_factors_trace(case, platform)
+        result = trace["result"]
+        return (
+            int(result["singleProcessSOuterSize"]),
+            int(result["singleProcessSInnerSize"]),
+            int(result["softmaxSOuterSize"]),
+        )
+
+    def _select_split_factors_trace(
+        self, case: PromptFlashAttentionCase, platform: PlatformProfile
+    ) -> dict[str, Any]:
         min_factor = SOUTER_FACTOR_DEFAULT
         rectangle_factor = SINNER_FACTOR_DEFAULT
         softmax_s_outer_factor = SOUTER_FACTOR_DEFAULT
         sparse_pre_tokens, sparse_next_tokens = self._sparse_tokens(case)
+        selected_branch = "default_value_d_le_128"
+        checks: dict[str, Any] = {
+            "value_d_le_128": case.value_d <= 128,
+            "fa_run_flag": platform.fa_run_flag,
+        }
         if case.value_d <= 128:
             check_dtype = case.input_dtype in {"float16", "bfloat16"}
             check_query_and_value_s = case.seq_q <= SOUTER_FACTOR_DEFAULT and case.seq_kv > SINNER_FACTOR_DEFAULT
@@ -473,17 +546,48 @@ class PromptFlashAttentionV2Replayer:
                     and sparse_sum > SINNER_FACTOR_DEFAULT
                 )
             )
+            checks.update(
+                {
+                    "input_dtype_is_fp16_or_bf16": check_dtype,
+                    "seq_q_le_64_and_seq_kv_gt_128": check_query_and_value_s,
+                    "sparse_sum": sparse_sum,
+                    "sparse_mode_enables_sub_factor": check_sparse_mode,
+                    "has_pse_shift": case.has_pse_shift,
+                }
+            )
             if check_dtype and check_query_and_value_s and check_sparse_mode and not case.has_pse_shift:
                 min_factor = SOUTER_FACTOR_SUB
                 rectangle_factor = SINNER_FACTOR_DOUBLE
                 softmax_s_outer_factor = SOUTER_FACTOR_SUB
+                selected_branch = "value_d_le_128_sparse_sub_factor"
         elif not platform.fa_run_flag:
             min_factor = SOUTER_FACTOR_SUB
             rectangle_factor = SINNER_FACTOR_SUB
             softmax_s_outer_factor = SOUTER_FACTOR_SUB
+            selected_branch = "value_d_gt_128_fa_run_disabled"
         else:
             softmax_s_outer_factor = SOUTER_FACTOR_SUB
-        return min_factor, rectangle_factor, softmax_s_outer_factor
+            selected_branch = "value_d_gt_128_fa_run_enabled"
+        return {
+            "cpp_function": "PromptFlashAttentionTilingV2::AdjustCVTilingCVDiff",
+            "selected_branch": selected_branch,
+            "initial_defaults": {
+                "singleProcessSOuterSize": SOUTER_FACTOR_DEFAULT,
+                "singleProcessSInnerSize": SINNER_FACTOR_DEFAULT,
+                "softmaxSOuterSize": SOUTER_FACTOR_DEFAULT,
+            },
+            "conditions": checks,
+            "sparse_tokens": {
+                "sparsePreTokens": sparse_pre_tokens,
+                "sparseNextTokens": sparse_next_tokens,
+            },
+            "result": {
+                "singleProcessSOuterSize": min_factor,
+                "singleProcessSInnerSize": rectangle_factor,
+                "softmaxSOuterSize": softmax_s_outer_factor,
+            },
+            "source": self._function_span("PromptFlashAttentionTilingV2::AdjustCVTilingCVDiff"),
+        }
 
     def _enable_dn(self, case: PromptFlashAttentionCase, s_outer_factor: int) -> bool:
         return (
@@ -494,6 +598,40 @@ class PromptFlashAttentionV2Replayer:
             and case.input_dtype in {"float16", "bfloat16"}
             and (s_outer_factor * 2 > 64)
         )
+
+    def _dn_override_trace(
+        self,
+        case: PromptFlashAttentionCase,
+        s_outer_factor: int,
+        current_s_inner_factor: int,
+    ) -> dict[str, Any]:
+        enable_dn = self._enable_dn(case, s_outer_factor)
+        checks = {
+            "enable_dn": enable_dn,
+            "query_d_eq_value_d": case.query_d == case.value_d,
+            "query_d_eq_64": case.query_d == 64,
+            "all_actual_seq_lengths_multiple_of_32": all(
+                length % 32 == 0 for length in case.actual_seq_lengths
+            ),
+            "all_actual_seq_lengths_kv_gt_128": all(
+                length > 128 for length in case.actual_seq_lengths_kv
+            ),
+        }
+        applied = enable_dn and all(bool(value) for value in checks.values())
+        return {
+            "cpp_function": "PromptFlashAttentionTilingV2::PromptFlashAttentionSplitNBSeq",
+            "selected_branch": "dn_sinner_256_override" if applied else "no_dn_sinner_override",
+            "conditions": checks,
+            "applied": applied,
+            "input": {
+                "singleProcessSOuterSize": s_outer_factor,
+                "singleProcessSInnerSize": current_s_inner_factor,
+            },
+            "result": {
+                "singleProcessSInnerSize": 256 if applied else current_s_inner_factor,
+            },
+            "source": self._function_span("PromptFlashAttentionTilingV2::PromptFlashAttentionSplitNBSeq"),
+        }
 
     def _sparse_tokens(self, case: PromptFlashAttentionCase) -> tuple[int, int]:
         sparse_pre = max(min(case.pre_tokens, SPARSE_MODE_INT_MAX), -SPARSE_MODE_INT_MAX)
@@ -1119,6 +1257,9 @@ class PromptFlashAttentionV2Replayer:
             high_level_api=case.api_name.startswith("aclnn"),
             has_attention_mask=case.has_attention_mask,
         )
+        dispatch_candidates = self._attach_tiling_key_values(dispatch_candidates)
+        selected_dispatch = dispatch_candidates[0] if dispatch_candidates else None
+        selected_tiling_key = self._selected_tiling_key_payload(selected_dispatch)
         return {
             "entry_function": "prompt_flash_attention_FIAS",
             "arch_dispatch": "prompt_flash_attention_FIAS_arch32",
@@ -1138,12 +1279,128 @@ class PromptFlashAttentionV2Replayer:
                 "has_attention_mask": case.has_attention_mask,
                 "has_pse_shift": case.has_pse_shift,
             },
+            "dispatch_match_criteria": {
+                "layout": case.layout.upper(),
+                "split_mode": "CUBEVECTORDIFF",
+                "query_dtype_token": self._dtype_signature_token(case.input_dtype, "Q"),
+                "key_dtype_token": self._dtype_signature_token(case.key_dtype, "KV"),
+                "output_dtype_token": self._dtype_signature_token(case.output_dtype, "OUT"),
+                "precision_mode": precision_mode,
+                "api_family": "HIGHLEVELAPI" if case.api_name.startswith("aclnn") else "BASICAPI",
+                "has_attention_mask": case.has_attention_mask,
+                "excluded_feature_flags": ["prefix", "paged_attention", "flash_decode"],
+            },
+            "selected_tiling_key": selected_tiling_key,
             "candidate_dispatches": dispatch_candidates,
             "notes": [
                 "SPLIT_NBS_CUBE expands one logical tiling group into a vector lane and a cube lane.",
                 "The host-side tiling arrays describe the shared logical region, while the kernel dispatch decides which mixed vector/cube implementation consumes it.",
             ],
         }
+
+    def _tiling_trace(
+        self,
+        *,
+        split_trace: dict[str, Any],
+        dn_trace: dict[str, Any],
+        kernel_context: dict[str, Any],
+    ) -> dict[str, Any]:
+        selected_key = kernel_context.get("selected_tiling_key") or {}
+        return {
+            "host_path": {
+                "adapter": "PromptFlashAttentionTilingV2",
+                "split_core_mode": "SPLIT_NBS_CUBE",
+                "split_factor_selection": split_trace,
+                "dn_sinner_override": dn_trace,
+                "replayed_cpp_functions": [
+                    "PromptFlashAttentionTilingV2::AdjustCVTilingCVDiff",
+                    "PromptFlashAttentionTilingV2::PromptFlashAttentionSplitNBSeq",
+                    "PromptFlashAttentionTilingV2::ComputeSplitNBSeq",
+                    "PromptFlashAttentionTilingV2::SetTilingKey",
+                ],
+            },
+            "kernel_path": {
+                "entry_function": kernel_context["entry_function"],
+                "dispatch_function": kernel_context["arch_dispatch"],
+                "task_type": kernel_context["task_type"],
+                "tiling_key_components": kernel_context["tiling_key_components"],
+                "dispatch_match_criteria": kernel_context["dispatch_match_criteria"],
+                "selected_tiling_key": selected_key,
+                "candidate_count": len(kernel_context["candidate_dispatches"]),
+                "candidate_tiling_keys": [
+                    {
+                        "symbol": item["tiling_key"],
+                        "value": item.get("tiling_key_value"),
+                        "score": item.get("score"),
+                        "implementation": item.get("implementation"),
+                        "source": item.get("source"),
+                    }
+                    for item in kernel_context["candidate_dispatches"]
+                ],
+                "tiling_key_setter": self._function_span("PromptFlashAttentionTilingV2::SetTilingKey"),
+                "tiling_key_header": self._tiling_key_header_span(),
+            },
+        }
+
+    def _attach_tiling_key_values(self, dispatch_candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        value_map = self._tiling_key_value_map()
+        enriched: list[dict[str, Any]] = []
+        for candidate in dispatch_candidates:
+            item = dict(candidate)
+            key_info = value_map.get(str(item["tiling_key"]))
+            if key_info is not None:
+                item["tiling_key_value"] = key_info["value"]
+                item["tiling_key_value_source"] = key_info["source"]
+            enriched.append(item)
+        return enriched
+
+    def _selected_tiling_key_payload(self, selected_dispatch: dict[str, Any] | None) -> dict[str, Any] | None:
+        if selected_dispatch is None:
+            return None
+        return {
+            "symbol": selected_dispatch["tiling_key"],
+            "value": selected_dispatch.get("tiling_key_value"),
+            "selection_rule": "highest_scoring_dispatch_candidate",
+            "score": selected_dispatch.get("score"),
+            "implementation": selected_dispatch.get("implementation"),
+            "invoke_macro": selected_dispatch.get("invoke_macro"),
+            "template_args": selected_dispatch.get("template_args"),
+            "dispatch_branch_source": selected_dispatch.get("source"),
+            "value_source": selected_dispatch.get("tiling_key_value_source"),
+        }
+
+    def _tiling_key_value_map(self) -> dict[str, dict[str, Any]]:
+        path = self.source_root / "op_kernel" / "prompt_flash_attention_tilingkey.h"
+        if not path.exists():
+            return {}
+        values: dict[str, dict[str, Any]] = {}
+        lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        for index, line in enumerate(lines, start=1):
+            match = TILING_KEY_DEFINE_RE.search(line)
+            if match is None:
+                continue
+            values[match.group("name")] = {
+                "value": match.group("value"),
+                "source": {
+                    "path": str(path.resolve()),
+                    "start_line": index,
+                    "end_line": index,
+                    "label": match.group("name"),
+                },
+            }
+        return values
+
+    def _tiling_key_header_span(self) -> dict[str, Any]:
+        path = self.source_root / "op_kernel" / "prompt_flash_attention_tilingkey.h"
+        if not path.exists():
+            return {
+                "path": str(path.resolve()),
+                "available": False,
+                "label": "prompt_flash_attention_tilingkey.h",
+            }
+        span = self._find_line_span(path, "#define", "prompt_flash_attention_tilingkey.h")
+        span["available"] = True
+        return span
 
     def _attach_kernel_execution(
         self,
@@ -1181,6 +1438,20 @@ class PromptFlashAttentionV2Replayer:
         except (TypeError, ValueError):
             return None
         return "HIGHPRECISION" if precise & 1 else "HIGHPERFORMANCE"
+
+    def _dtype_signature_token(self, dtype_name: str, role: str) -> str | None:
+        normalized = dtype_name.lower()
+        mapping = {
+            "float16": "FP16",
+            "bfloat16": "BF16",
+            "int8": "INT8",
+            "float8_e4m3fn": "FP8",
+            "hifloat8": "FP8",
+        }
+        suffix = mapping.get(normalized)
+        if suffix is None:
+            return None
+        return f"{role}{suffix}"
 
     def _tiling_key_config_hint(
         self,

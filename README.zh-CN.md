@@ -26,7 +26,7 @@ FlashAttention. Decoded.
 - `fixtures/prompt_flash_attention` 已经补成完整算子快照，不再是只保留 `op_host` 的残缺副本。
 - 当前 fixture 还会输出 `manifest_sha256`，并和工作区源码做文件级同步校验。
 - `analyze-source` 现在同时分析 `op_host` 和 `op_kernel`。
-- `replay-cases` 除了 workload，还会输出 `kernel_execution_model` 和每个 core 的 `kernel_execution`。
+- `replay-cases` 除了 workload，还会输出 tiling 分支轨迹、tiling key、`kernel_execution_model` 和每个 core 的 `kernel_execution`。
 - 当前样板通过 `23 / 23` 条 replay 行验证和 `12 / 12` 条自动化测试。
 
 ## 你能拿到什么
@@ -44,6 +44,7 @@ case replay 产物：
 - `examples/fa_tiling_output.json`
 - `examples/fa_tiling_summary.csv`
 - `examples/visualizations/*.svg`
+- `tiling_trace`：host 分支条件、DN 覆写、选中的 tiling key 和 dispatch 候选
 - `kernel_execution_model`
 - 每个物理 core 的 `kernel_execution`
 

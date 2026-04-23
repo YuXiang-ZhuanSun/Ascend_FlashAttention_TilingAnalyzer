@@ -48,11 +48,12 @@ Implemented in [`src/flashattention_analyzers/fpa_v2.py`](../src/flashattention_
 Responsibilities:
 
 - parse testcase rows into structured inputs
+- emit host-side tiling branch trace and condition results
 - reproduce split-factor selection
 - reproduce unit traversal order
 - split logical core groups
 - expand physical cores
-- attach kernel execution context
+- attach selected tiling key, dispatch candidates, and kernel execution context
 - render per-core SVGs
 
 ### 5. CLI

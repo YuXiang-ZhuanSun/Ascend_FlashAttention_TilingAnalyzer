@@ -37,7 +37,7 @@ This project turns those questions into source-backed artifacts.
 - The fixture snapshot is now a complete operator snapshot, not a trimmed `op_host` subset.
 - The shipped fixture now reports a `manifest_sha256` and verifies file-level sync against the workspace source tree.
 - `analyze-source` inspects both `op_host` and `op_kernel`.
-- `replay-cases` emits both workload detail and kernel execution context.
+- `replay-cases` emits workload detail, tiling branch traces, tiling keys, and kernel execution context.
 - The current sample validates `23 / 23` replay rows and `12 / 12` automated tests.
 
 ## Outputs
@@ -55,6 +55,7 @@ For testcase replay:
 - `examples/fa_tiling_output.json`
 - `examples/fa_tiling_summary.csv`
 - `examples/visualizations/*.svg`
+- `tiling_trace` with host branch decisions, condition checks, selected tiling key, and dispatch candidates
 - `kernel_execution_model`
 - per-core `kernel_execution`
 
