@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="97" y1="56" x2="1454" y2="770" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111F"/>
+      <stop offset="0.55" stop-color="#102037"/>
+      <stop offset="1" stop-color="#1D3557"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1187 188) rotate(122.632) scale(297.227 413.184)">
+      <stop stop-color="#38BDF8" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(397 658) rotate(19.444) scale(489.796 274.947)">
+      <stop stop-color="#FB7185" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#FB7185" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="916" y1="213" x2="1339" y2="577" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="0.5" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="921" y1="442" x2="1374" y2="606" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDBA74"/>
+      <stop offset="1" stop-color="#F43F5E"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="820" rx="40" fill="url(#bg)"/>
+  <rect width="1600" height="820" rx="40" fill="url(#glowA)"/>
+  <rect width="1600" height="820" rx="40" fill="url(#glowB)"/>
+  <g opacity="0.15" stroke="#5A7496">
+    <path d="M80 130H1520"/>
+    <path d="M80 238H1520"/>
+    <path d="M80 346H1520"/>
+    <path d="M80 454H1520"/>
+    <path d="M80 562H1520"/>
+    <path d="M80 670H1520"/>
+    <path d="M212 80V740"/>
+    <path d="M428 80V740"/>
+    <path d="M644 80V740"/>
+    <path d="M860 80V740"/>
+    <path d="M1076 80V740"/>
+    <path d="M1292 80V740"/>
+  </g>
+  <g>
+    <text x="96" y="152" fill="#7DD3FC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="0.18em">SOURCE-DRIVEN TILING TOOL</text>
+    <text x="96" y="252" fill="#F8FAFC" font-family="Georgia, Times New Roman, serif" font-size="78" font-weight="700">Reconstruct operator tiling</text>
+    <text x="96" y="334" fill="#F8FAFC" font-family="Georgia, Times New Roman, serif" font-size="78" font-weight="700">from real source code.</text>
+    <text x="96" y="416" fill="#C7D8F3" font-family="Segoe UI, Arial, sans-serif" font-size="28">Parse the host-side implementation. Recover the split logic.</text>
+    <text x="96" y="456" fill="#C7D8F3" font-family="Segoe UI, Arial, sans-serif" font-size="28">Replay per-core work. Make every block auditable.</text>
+  </g>
+  <g>
+    <rect x="96" y="522" width="210" height="64" rx="22" fill="#0D1728" stroke="#345174"/>
+    <text x="128" y="563" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">23/23 cases passed</text>
+    <rect x="324" y="522" width="196" height="64" rx="22" fill="#0D1728" stroke="#345174"/>
+    <text x="356" y="563" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Per-core heatmaps</text>
+    <rect x="538" y="522" width="228" height="64" rx="22" fill="#0D1728" stroke="#345174"/>
+    <text x="570" y="563" fill="#F8FAFC" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Traceable Python replay</text>
+  </g>
+  <g>
+    <rect x="890" y="118" width="612" height="258" rx="30" fill="#0D1728" stroke="#314C70"/>
+    <text x="930" y="164" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700">Replay Surface</text>
+    <rect x="930" y="200" width="198" height="132" rx="20" fill="#111F35" stroke="#2A4467"/>
+    <rect x="954" y="224" width="150" height="16" rx="8" fill="#203553"/>
+    <rect x="954" y="252" width="86" height="56" rx="16" fill="url(#accent)"/>
+    <rect x="1048" y="252" width="56" height="56" rx="16" fill="url(#warm)"/>
+    <text x="954" y="184" fill="#8AB4F8" font-family="Segoe UI, Arial, sans-serif" font-size="18">Source Analysis</text>
+    <rect x="1152" y="200" width="310" height="132" rx="20" fill="#111F35" stroke="#2A4467"/>
+    <rect x="1180" y="224" width="250" height="12" rx="6" fill="#203553"/>
+    <rect x="1180" y="250" width="250" height="12" rx="6" fill="#203553"/>
+    <rect x="1180" y="276" width="250" height="12" rx="6" fill="#203553"/>
+    <rect x="1180" y="304" width="148" height="12" rx="6" fill="url(#accent)"/>
+    <text x="1180" y="184" fill="#8AB4F8" font-family="Segoe UI, Arial, sans-serif" font-size="18">Per-Core JSON</text>
+  </g>
+  <g>
+    <rect x="890" y="402" width="612" height="304" rx="30" fill="#0D1728" stroke="#314C70"/>
+    <text x="930" y="448" fill="#E6F0FF" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700">Visualization Wall</text>
+    <rect x="930" y="486" width="166" height="176" rx="18" fill="#111F35" stroke="#2A4467"/>
+    <rect x="1120" y="486" width="166" height="176" rx="18" fill="#111F35" stroke="#2A4467"/>
+    <rect x="1310" y="486" width="152" height="176" rx="18" fill="#111F35" stroke="#2A4467"/>
+    <g opacity="0.22" stroke="#4D678A">
+      <path d="M954 522H1072"/><path d="M954 554H1072"/><path d="M954 586H1072"/><path d="M954 618H1072"/>
+      <path d="M954 650H1072"/><path d="M984 506V648"/><path d="M1014 506V648"/><path d="M1044 506V648"/>
+      <path d="M1144 522H1262"/><path d="M1144 554H1262"/><path d="M1144 586H1262"/><path d="M1144 618H1262"/>
+      <path d="M1144 650H1262"/><path d="M1174 506V648"/><path d="M1204 506V648"/><path d="M1234 506V648"/>
+      <path d="M1334 522H1438"/><path d="M1334 554H1438"/><path d="M1334 586H1438"/><path d="M1334 618H1438"/>
+      <path d="M1334 650H1438"/><path d="M1364 506V648"/><path d="M1394 506V648"/>
+    </g>
+    <rect x="954" y="522" width="118" height="32" fill="url(#accent)" fill-opacity="0.9"/>
+    <rect x="954" y="554" width="88" height="32" fill="url(#accent)" fill-opacity="0.82"/>
+    <rect x="954" y="586" width="118" height="32" fill="url(#warm)" fill-opacity="0.88"/>
+    <rect x="954" y="618" width="118" height="32" fill="url(#accent)" fill-opacity="0.9"/>
+    <rect x="1144" y="522" width="118" height="32" fill="url(#warm)" fill-opacity="0.9"/>
+    <rect x="1144" y="554" width="118" height="32" fill="url(#accent)" fill-opacity="0.85"/>
+    <rect x="1174" y="586" width="88" height="32" fill="url(#accent)" fill-opacity="0.82"/>
+    <rect x="1144" y="618" width="118" height="32" fill="url(#warm)" fill-opacity="0.9"/>
+    <rect x="1334" y="522" width="104" height="32" fill="url(#accent)" fill-opacity="0.9"/>
+    <rect x="1334" y="554" width="74" height="32" fill="url(#accent)" fill-opacity="0.82"/>
+    <rect x="1334" y="586" width="104" height="32" fill="url(#warm)" fill-opacity="0.88"/>
+    <rect x="1334" y="618" width="104" height="32" fill="url(#accent)" fill-opacity="0.9"/>
+  </g>
+</svg>

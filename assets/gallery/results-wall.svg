@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="980" viewBox="0 0 1440 980" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="121" y1="58" x2="1317" y2="942" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FAFF"/>
+      <stop offset="1" stop-color="#E9F0FF"/>
+    </linearGradient>
+    <linearGradient id="cool" x1="178" y1="235" x2="437" y2="501" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="665" y1="227" x2="971" y2="495" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDBA74"/>
+      <stop offset="1" stop-color="#F43F5E"/>
+    </linearGradient>
+    <linearGradient id="mix" x1="1036" y1="604" x2="1256" y2="816" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="0.5" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="980" rx="36" fill="url(#bg)"/>
+  <text x="92" y="98" fill="#0F172A" font-family="Georgia, Times New Roman, serif" font-size="52" font-weight="700">Result Wall</text>
+  <text x="92" y="140" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-size="24">The shipped sample produces source analysis, replay JSON, summary CSV, and per-core block maps.</text>
+  <g>
+    <rect x="92" y="186" width="390" height="300" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
+    <text x="124" y="234" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Source analysis</text>
+    <text x="124" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Struct reuse, constants, setter mapping</text>
+    <rect x="124" y="306" width="326" height="20" rx="10" fill="#E2E8F0"/>
+    <rect x="124" y="344" width="178" height="86" rx="20" fill="url(#cool)"/>
+    <rect x="316" y="344" width="134" height="20" rx="10" fill="#DCE7F8"/>
+    <rect x="316" y="378" width="134" height="20" rx="10" fill="#DCE7F8"/>
+    <rect x="316" y="412" width="96" height="20" rx="10" fill="#DCE7F8"/>
+  </g>
+  <g>
+    <rect x="524" y="186" width="390" height="300" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
+    <text x="556" y="234" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Replay JSON</text>
+    <text x="556" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Per-case, per-core, per-unit output</text>
+    <rect x="556" y="306" width="326" height="20" rx="10" fill="#E2E8F0"/>
+    <rect x="556" y="346" width="326" height="18" rx="9" fill="#DCE7F8"/>
+    <rect x="556" y="378" width="326" height="18" rx="9" fill="#DCE7F8"/>
+    <rect x="556" y="410" width="228" height="18" rx="9" fill="url(#warm)"/>
+    <rect x="556" y="442" width="178" height="18" rx="9" fill="#DCE7F8"/>
+  </g>
+  <g>
+    <rect x="956" y="186" width="392" height="300" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
+    <text x="988" y="234" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Summary CSV</text>
+    <text x="988" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">One row per testcase, validation status included</text>
+    <g opacity="0.22" stroke="#B6C6DB">
+      <path d="M988 312H1316"/><path d="M988 352H1316"/><path d="M988 392H1316"/><path d="M988 432H1316"/>
+      <path d="M988 472H1316"/><path d="M1082 300V472"/><path d="M1176 300V472"/><path d="M1270 300V472"/>
+    </g>
+    <rect x="997" y="363" width="74" height="18" rx="9" fill="#0EA5E9" fill-opacity="0.8"/>
+    <rect x="1190" y="363" width="68" height="18" rx="9" fill="#22C55E" fill-opacity="0.85"/>
+    <rect x="997" y="403" width="58" height="18" rx="9" fill="#0EA5E9" fill-opacity="0.8"/>
+    <rect x="1190" y="403" width="68" height="18" rx="9" fill="#22C55E" fill-opacity="0.85"/>
+  </g>
+  <g>
+    <rect x="92" y="534" width="1256" height="360" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
+    <text x="124" y="582" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Per-core visualization gallery</text>
+    <text x="124" y="616" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Each physical core gets a unit-range view and a grouped Q x KV block panel.</text>
+    <rect x="124" y="656" width="278" height="194" rx="22" fill="#0F172A"/>
+    <rect x="438" y="656" width="278" height="194" rx="22" fill="#0F172A"/>
+    <rect x="752" y="656" width="278" height="194" rx="22" fill="#0F172A"/>
+    <rect x="1066" y="656" width="250" height="194" rx="22" fill="#0F172A"/>
+    <rect x="148" y="684" width="76" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="242" y="684" width="136" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="462" y="684" width="76" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="556" y="684" width="136" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="776" y="684" width="76" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="870" y="684" width="136" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="1090" y="684" width="202" height="118" rx="12" fill="#111F35" stroke="#314C70"/>
+    <rect x="162" y="700" width="48" height="18" rx="9" fill="#334155"/>
+    <rect x="162" y="730" width="48" height="16" rx="8" fill="url(#mix)"/>
+    <rect x="162" y="756" width="48" height="16" rx="8" fill="url(#mix)"/>
+    <rect x="162" y="782" width="48" height="16" rx="8" fill="url(#mix)"/>
+    <g opacity="0.2" stroke="#6381A7">
+      <path d="M256 708H364"/><path d="M256 732H364"/><path d="M256 756H364"/><path d="M256 780H364"/>
+      <path d="M284 692V796"/><path d="M312 692V796"/><path d="M340 692V796"/>
+      <path d="M570 708H678"/><path d="M570 732H678"/><path d="M570 756H678"/><path d="M570 780H678"/>
+      <path d="M598 692V796"/><path d="M626 692V796"/><path d="M654 692V796"/>
+      <path d="M884 708H992"/><path d="M884 732H992"/><path d="M884 756H992"/><path d="M884 780H992"/>
+      <path d="M912 692V796"/><path d="M940 692V796"/><path d="M968 692V796"/>
+    </g>
+    <rect x="256" y="708" width="108" height="24" fill="url(#mix)" fill-opacity="0.9"/>
+    <rect x="256" y="732" width="80" height="24" fill="url(#mix)" fill-opacity="0.8"/>
+    <rect x="256" y="756" width="108" height="24" fill="url(#warm)" fill-opacity="0.88"/>
+    <rect x="570" y="708" width="108" height="24" fill="url(#warm)" fill-opacity="0.9"/>
+    <rect x="570" y="732" width="108" height="24" fill="url(#mix)" fill-opacity="0.82"/>
+    <rect x="598" y="756" width="80" height="24" fill="url(#mix)" fill-opacity="0.78"/>
+    <rect x="884" y="708" width="108" height="24" fill="url(#mix)" fill-opacity="0.9"/>
+    <rect x="884" y="732" width="80" height="24" fill="url(#mix)" fill-opacity="0.82"/>
+    <rect x="884" y="756" width="108" height="24" fill="url(#warm)" fill-opacity="0.88"/>
+    <rect x="1106" y="702" width="170" height="14" rx="7" fill="#334155"/>
+    <rect x="1106" y="730" width="170" height="14" rx="7" fill="#334155"/>
+    <rect x="1106" y="758" width="98" height="14" rx="7" fill="url(#mix)"/>
+  </g>
+</svg>

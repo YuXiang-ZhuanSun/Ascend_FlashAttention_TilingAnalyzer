@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="24" y1="20" x2="222" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#09111F"/>
+      <stop offset="1" stop-color="#12233D"/>
+    </linearGradient>
+    <linearGradient id="hot" x1="61" y1="48" x2="190" y2="187" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FDBA74"/>
+      <stop offset="0.5" stop-color="#F97316"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+    <linearGradient id="cool" x1="68" y1="66" x2="196" y2="194" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)"/>
+  <rect x="28" y="28" width="200" height="200" rx="38" fill="#0E1A2D" stroke="#24344F"/>
+  <g opacity="0.18" stroke="#5E7495">
+    <path d="M60 56V200"/>
+    <path d="M96 56V200"/>
+    <path d="M132 56V200"/>
+    <path d="M168 56V200"/>
+    <path d="M204 56V200"/>
+    <path d="M56 60H200"/>
+    <path d="M56 96H200"/>
+    <path d="M56 132H200"/>
+    <path d="M56 168H200"/>
+    <path d="M56 204H200"/>
+  </g>
+  <rect x="58" y="58" width="34" height="34" rx="10" fill="url(#cool)"/>
+  <rect x="94" y="58" width="34" height="34" rx="10" fill="url(#cool)"/>
+  <rect x="130" y="58" width="34" height="34" rx="10" fill="url(#cool)"/>
+  <rect x="130" y="94" width="34" height="34" rx="10" fill="url(#hot)"/>
+  <rect x="130" y="130" width="34" height="34" rx="10" fill="url(#hot)"/>
+  <rect x="94" y="130" width="34" height="34" rx="10" fill="url(#hot)"/>
+  <rect x="58" y="130" width="34" height="34" rx="10" fill="url(#hot)"/>
+  <rect x="58" y="166" width="34" height="34" rx="10" fill="url(#cool)"/>
+  <rect x="94" y="166" width="34" height="34" rx="10" fill="url(#cool)"/>
+  <rect x="130" y="166" width="34" height="34" rx="10" fill="url(#cool)"/>
+  <path d="M189 74H176" stroke="#D7E6FF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M189 110H176" stroke="#D7E6FF" stroke-width="8" stroke-linecap="round" opacity="0.75"/>
+  <path d="M189 146H176" stroke="#D7E6FF" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+  <path d="M189 182H176" stroke="#D7E6FF" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+</svg>
