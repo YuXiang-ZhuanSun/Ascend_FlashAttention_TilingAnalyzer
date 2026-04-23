@@ -19,12 +19,12 @@
     </linearGradient>
   </defs>
   <rect width="1440" height="980" rx="36" fill="url(#bg)"/>
-  <text x="92" y="98" fill="#0F172A" font-family="Georgia, Times New Roman, serif" font-size="52" font-weight="700">Result Wall</text>
-  <text x="92" y="140" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-size="24">The shipped sample produces source analysis, replay JSON, summary CSV, and per-core block maps.</text>
+  <text x="92" y="98" fill="#0F172A" font-family="Georgia, Times New Roman, serif" font-size="52" font-weight="700">FlashAttention Result Wall</text>
+  <text x="92" y="140" fill="#475569" font-family="Segoe UI, Arial, sans-serif" font-size="24">The shipped Prompt Flash Attention sample produces source analysis, replay JSON, summary CSV, and per-core block maps.</text>
   <g>
     <rect x="92" y="186" width="390" height="300" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
     <text x="124" y="234" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Source analysis</text>
-    <text x="124" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Struct reuse, constants, setter mapping</text>
+    <text x="124" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Struct reuse, constants, and setter mapping from the FPA fixture</text>
     <rect x="124" y="306" width="326" height="20" rx="10" fill="#E2E8F0"/>
     <rect x="124" y="344" width="178" height="86" rx="20" fill="url(#cool)"/>
     <rect x="316" y="344" width="134" height="20" rx="10" fill="#DCE7F8"/>
@@ -34,7 +34,7 @@
   <g>
     <rect x="524" y="186" width="390" height="300" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
     <text x="556" y="234" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Replay JSON</text>
-    <text x="556" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Per-case, per-core, per-unit output</text>
+    <text x="556" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">Per-case, per-core, and per-unit output for Prompt Flash Attention</text>
     <rect x="556" y="306" width="326" height="20" rx="10" fill="#E2E8F0"/>
     <rect x="556" y="346" width="326" height="18" rx="9" fill="#DCE7F8"/>
     <rect x="556" y="378" width="326" height="18" rx="9" fill="#DCE7F8"/>
@@ -44,7 +44,7 @@
   <g>
     <rect x="956" y="186" width="392" height="300" rx="28" fill="#FFFFFF" stroke="#D7E2F2"/>
     <text x="988" y="234" fill="#0F172A" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Summary CSV</text>
-    <text x="988" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">One row per testcase, validation status included</text>
+    <text x="988" y="268" fill="#64748B" font-family="Segoe UI, Arial, sans-serif" font-size="18">One row per testcase, with validation status and core usage</text>
     <g opacity="0.22" stroke="#B6C6DB">
       <path d="M988 312H1316"/><path d="M988 352H1316"/><path d="M988 392H1316"/><path d="M988 432H1316"/>
       <path d="M988 472H1316"/><path d="M1082 300V472"/><path d="M1176 300V472"/><path d="M1270 300V472"/>

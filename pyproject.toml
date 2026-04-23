@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "source-driven-tiling-tool"
+name = "flashattention-tiling-analyzer"
 version = "0.1.0"
-description = "Build and validate operator tiling replay tools directly from source code and testcase inputs."
+description = "Analyze and replay Ascend FlashAttention tiling behavior from real host-side source code."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
@@ -14,7 +14,7 @@ authors = [
 dependencies = []
 
 [project.scripts]
-source-driven-tiling-tool = "op_tiling_analyzer.cli:main"
+flashattention-tiling-analyzer = "op_tiling_analyzer.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

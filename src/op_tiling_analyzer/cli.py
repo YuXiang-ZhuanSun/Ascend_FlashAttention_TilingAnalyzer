@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     default_cases = Path("testcases") / "fa_testcases.csv"
     parser = argparse.ArgumentParser(
         prog="tiling_tool.py",
-        description="Build and validate an operator tiling replay tool from source code and testcase inputs.",
+        description="Analyze and replay FlashAttention tiling from source code and testcase inputs.",
     )
     subparsers = parser.add_subparsers(dest="command")
 
