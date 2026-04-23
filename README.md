@@ -1,53 +1,62 @@
 # FlashAttention Tiling Analyzer
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-6%2F6%20passed-16A34A)
+![Tests](https://img.shields.io/badge/tests-11%2F11%20passed-16A34A)
 ![Cases](https://img.shields.io/badge/cases-23%2F23%20passed-0F766E)
-![Replay](https://img.shields.io/badge/replay-source--aligned-1D4ED8)
+![Replay](https://img.shields.io/badge/replay-host%2Bkernel--aligned-1D4ED8)
 
 [中文 README](README.zh-CN.md) | [English README](README.md) | [Sister Project: MatMul Tiling Analyzer](https://github.com/YuXiang-ZhuanSun/ascend_matmul_tiling_analyzer)
 
-![FlashAttention Tiling Analyzer Banner](assets/brand/hero-banner.svg)
+![FlashAttention Tiling Analyzer Banner](assets/brand/hero-banner.png)
 
 FlashAttention. Decoded.
 
-像读源码一样读 FlashAttention tiling，像性能工程师一样看分核负载。
+This repository reconstructs Prompt Flash Attention tiling from the shipped source tree and then pushes past host-side split boundaries into kernel-side execution context.
 
-Most FlashAttention tuning time is not spent on arithmetic. It is spent on uncertainty: did the testcase hit the expected host-side tiling path, is core splitting balanced, and what exactly did each physical core receive?
+## What This Tool Covers
 
-`FlashAttention Tiling Analyzer` turns that uncertainty into evidence by replaying the shipped Prompt Flash Attention host implementation and expanding it into per-core workload views.
+- host-side tiling structs, constants, setter mappings, and split logic
+- kernel entry functions, dispatch branches, tiling-key candidates, and vector/cube lane contracts
+- logical-core grouping, physical-core expansion, and per-core workload summaries
+- per-core `Q x KV block` SVG visualization
 
-## Why This Project
+## Why It Is Useful
 
-- Surface host-side split mistakes before expensive profiling loops.
-- Check whether logical-core groups and physical-core expansion are balanced for a shape.
-- Explain tail work, coverage, and utilization risk with concrete per-core evidence.
-- Produce shareable artifacts for debugging, review, and regression tracking.
+Most FlashAttention tuning time is lost to uncertainty:
+
+- which host tiling path did a testcase actually hit
+- whether logical split groups are balanced
+- what each physical core really received
+- which kernel-side dispatch family is likely consuming that tiling payload
+
+This project turns those questions into source-backed artifacts.
 
 ## What Makes It Credible
 
-This repository is built on source alignment, not handwritten tiling tables.
+- The replay comes from the shipped Prompt Flash Attention host implementation, not handwritten tiling tables.
+- The fixture snapshot is now a complete operator snapshot, not a trimmed `op_host` subset.
+- The shipped fixture now reports a `manifest_sha256` and verifies file-level sync against the workspace source tree.
+- `analyze-source` inspects both `op_host` and `op_kernel`.
+- `replay-cases` emits both workload detail and kernel execution context.
+- The current sample validates `23 / 23` replay rows and `11 / 11` automated tests.
 
-- The Python replay is reconstructed from the shipped Prompt Flash Attention host fixture.
-- The public API and testcase path are `PFA V3`, while the host implementation actually replayed is `prompt_flash_attention_tiling_v2.cpp`.
-- Source analysis, testcase CSVs, replay outputs, traceability docs, and SVG visualizations ship together in one repository.
-- The current sample validates `23 / 23` replay cases and `6 / 6` automated tests.
+## Outputs
 
-## What You Get
-
-For each case:
-
-- source-backed split factors and setter-to-runtime field mapping
-- `logical_core_assignments` and expanded `core_assignments`
-- `task_units`, `task_segments`, and per-core summaries
-- per-core `Q x KV block` SVGs grouped by `(batch, head)`
-
-For batch runs:
+For source analysis:
 
 - `docs/fpa_source_analysis.json`
+- fixture completeness check and source origin
+- fixture manifest hash and workspace sync status
+- host struct / setter / function traceability
+- kernel entrypoints, dispatch branches, and tiling-key template traceability
+
+For testcase replay:
+
 - `examples/fa_tiling_output.json`
 - `examples/fa_tiling_summary.csv`
 - `examples/visualizations/*.svg`
+- `kernel_execution_model`
+- per-core `kernel_execution`
 
 ## Quick Start
 
@@ -64,21 +73,20 @@ Explicit inputs are also supported:
 python tiling_tool.py replay-cases --source-root fixtures/prompt_flash_attention --cases testcases/fa_testcases.csv --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
 ```
 
-## Example Outputs
+## Project Layout
 
-![FlashAttention Result Wall](assets/gallery/results-wall.svg)
-
-The shipped sample produces:
-
-- a source analysis report from the Prompt Flash Attention fixture
-- replay JSON with logical-core and physical-core detail
-- a testcase summary CSV
-- per-core `Q x KV block` SVG visualizations
+- `fixtures/prompt_flash_attention/`: complete operator snapshot used for standalone delivery
+- `testcases/`: shipped testcase copy
+- `src/flashattention_cli.py`: CLI entry
+- `src/flashattention_models.py`: shared data models
+- `src/flashattention_utils.py`: helpers
+- `src/flashattention_analyzers/`: host and kernel source analyzers plus replay logic
+- `tests/`: automated verification
 
 ## Scope
 
-- Current implementation focus: `PromptFlashAttentionTilingV2`
-- Current public API / testcase path: `aclnnPromptFlashAttentionV3`
+- Current adapter: `PromptFlashAttentionTilingV2`
+- Current testcase / API path: `aclnnPromptFlashAttentionV3`
 - Current validated split focus: `SPLIT_NBS_CUBE`
 - Positioning: analysis and diagnosis tool, not runtime replacement
 
@@ -88,10 +96,5 @@ The shipped sample produces:
 - [Architecture](docs/architecture.md)
 - [FPA Traceability](docs/fpa_traceability.md)
 - [Test Report](docs/test_report.md)
-- [Source Analysis JSON](docs/fpa_source_analysis.json)
-- [Example Outputs](examples/visualizations)
-- [Contributing](CONTRIBUTING.md)
-
-## Sister Project
-
-If you are looking for the MatMul companion in the same family, see [ascend_matmul_tiling_analyzer](https://github.com/YuXiang-ZhuanSun/ascend_matmul_tiling_analyzer).
+- [Skill Build Report](docs/skill_build_report.md)
+- [Fixture Source Note](fixtures/prompt_flash_attention/FIXTURE_SOURCE.md)

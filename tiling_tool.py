@@ -9,7 +9,7 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from op_tiling_analyzer.cli import main
+from flashattention_cli import main
 
 
 if __name__ == "__main__":

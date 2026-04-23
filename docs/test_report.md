@@ -2,7 +2,7 @@
 
 ## Environment
 
-- Workspace root: `source_driven_tiling_tool`
+- Repository root: `flashattention_tiling_analyzer`
 - Source fixture root: `fixtures/prompt_flash_attention`
 - Testcase file: `testcases/fa_testcases.csv`
 - Python: `3.14.3`
@@ -18,16 +18,19 @@ python tiling_tool.py replay-cases --output examples/fa_tiling_output.json --sum
 
 ## Results
 
-- Unit tests: 6 / 6 passed
-- CSV replay cases: 23 / 23 passed
-- Coverage validation: 23 / 23 `coverage_ok=True`
-- Weight validation: 23 / 23 `weighted_coverage_ok=True`
-- Visualization generation: 23 SVG emitted for 23 replayed cases
-- Duplicate `case_id` handling verified: `PFAV3_case7.svg` and `PFAV3_case7__2.svg` both retained
+- Unit tests: `11 / 11` passed
+- CSV replay rows: `23 / 23` passed
+- Coverage validation: `23 / 23` with `coverage_ok=True`
+- Weight validation: `23 / 23` with `weighted_coverage_ok=True`
+- Visualization generation: `23` SVG emitted for `23` replayed cases
+- Fixture completeness check: `full_operator_snapshot=True`
+- Fixture workspace sync: `content_aligned=True`, `missing=0`, `extra=0`, `mismatch=0`
+- Kernel dispatch candidate extraction: verified in automated tests
 
 ## Notes
 
 - The shipped testcase path is `PFA V3`, while the replayed host-side tiling implementation is `PromptFlashAttentionTilingV2`.
 - All shipped testcase rows currently land on the `SPLIT_NBS_CUBE` main path.
-- All shipped testcase rows currently replay with `singleProcessSOuterSize=64`, `singleProcessSInnerSize=128`, and `effectiveSplitSOuterSize=128`.
-- The SVG output shows both unit-index coverage and per-core `Q x KV block` coverage.
+- The current main path replays with `singleProcessSOuterSize=64`, `singleProcessSInnerSize=128`, and `effectiveSplitSOuterSize=128`.
+- Replay output now includes both workload detail and kernel execution context.
+- The shipped CSV contains `23` rows but `22` unique `testcase_name` values; one duplicated `PFAV3_case7` row is replayed and visualized twice, with `__2` suffixing used to keep artifact names unique.

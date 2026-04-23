@@ -1,30 +1,46 @@
 # FPA Traceability
 
-This document ties the Python replay implementation back to the shipped FPA source fixture.
+This document ties the replay implementation back to both the host-side tiling logic and the kernel-side execution path.
 
 ## Naming Reality
-
-The current shipped sample contains two different version labels:
 
 - testcase / public API: `PFA V3`, for example `aclnnPromptFlashAttentionV3`
 - host-side tiling implementation: `PromptFlashAttentionTilingV2`
 
-This project therefore reconstructs the `tiling V2` implementation that backs the shipped `PFA V3` testcase path.
+So the current tool reconstructs the `tiling V2` implementation that backs the shipped `PFA V3` testcase path.
 
-## Source Fixture Files
+## Source Files Used
 
-- Host-side tiling header:
-  [fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling.h](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling.h)
-- Host-side tiling implementation:
-  [fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_v2.cpp](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_v2.cpp)
-- Tiling constants:
-  [fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_const.h](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_const.h)
-- V3 API bridge:
-  [fixtures/prompt_flash_attention/op_api/aclnn_prompt_flash_attention_v3.cpp](../fixtures/prompt_flash_attention/op_api/aclnn_prompt_flash_attention_v3.cpp)
+Host side:
+
+- [`fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling.h`](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling.h)
+- [`fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_v2.cpp`](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_v2.cpp)
+- [`fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_const.h`](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_const.h)
+- [`fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_register.cpp`](../fixtures/prompt_flash_attention/op_host/prompt_flash_attention_tiling_register.cpp)
+
+Kernel side:
+
+- [`fixtures/prompt_flash_attention/op_kernel/prompt_flash_attention.cpp`](../fixtures/prompt_flash_attention/op_kernel/prompt_flash_attention.cpp)
+- [`fixtures/prompt_flash_attention/op_kernel/prompt_flash_attention_arch32.h`](../fixtures/prompt_flash_attention/op_kernel/prompt_flash_attention_arch32.h)
+- [`fixtures/prompt_flash_attention/op_kernel/arch35/prompt_flash_attention_template_tiling_key.h`](../fixtures/prompt_flash_attention/op_kernel/arch35/prompt_flash_attention_template_tiling_key.h)
+
+## Fixture Sync Evidence
+
+`analyze-source` now emits fixture-level provenance in [`fpa_source_analysis.json`](fpa_source_analysis.json):
+
+- `file_count`: total files shipped in the fixture snapshot
+- `manifest_sha256`: aggregate manifest hash for the shipped snapshot
+- `workspace_sync`: file-level comparison against the workspace root `prompt_flash_attention/`
+
+In the current workspace run, the shipped fixture matches the workspace source tree exactly after excluding the explanatory `FIXTURE_SOURCE.md` file:
+
+- missing files: `0`
+- extra files: `0`
+- content mismatches: `0`
 
 ## Struct Reuse
 
-`PromptAttentionSeqParams` is defined in the host-side tiling header and then reused at runtime to carry per-core split ranges.
+`PromptAttentionSeqParams` is defined in the host-side tiling header and reused at runtime to carry per-core split ranges.
 
 | Struct field | Header comment | Runtime meaning |
 | --- | --- | --- |
@@ -35,36 +51,39 @@ This project therefore reconstructs the `tiling V2` implementation that backs th
 | `coreSeqPosStart` | `coreSeqPosStart` | `coreSposStart` |
 | `coreSeqPosEnd` | `coreSeqPosEnd` | `coreSposEnd` |
 
-Setter writes are recovered from `prompt_flash_attention_tiling_v2.cpp` and also emitted in [fpa_source_analysis.json](fpa_source_analysis.json).
+Setter writes are recovered directly from `prompt_flash_attention_tiling_v2.cpp`.
 
-## Python To C++ Mapping
+## Host To Python Mapping
 
 | Python method | C++ function |
 | --- | --- |
 | `PromptFlashAttentionV2Replayer._select_split_factors` | `PromptFlashAttentionTilingV2::AdjustCVTilingCVDiff` |
-| `PromptFlashAttentionV2Replayer._sparse_tokens` | `PromptFlashAttentionTilingV2::SetSparseModeData` |
-| `PromptFlashAttentionV2Replayer._get_pre_next_tokens_left_up` | `PromptFlashAttentionTilingV2::GetPreNextTokensLeftUp` |
-| `PromptFlashAttentionV2Replayer._get_actual_inner_block_nums` | `PromptFlashAttentionTilingV2::GetActualInnerBlockNums` |
-| `PromptFlashAttentionV2Replayer._get_cut_block_nums` | `PromptFlashAttentionTilingV2::GetCutBlockNums` |
-| `PromptFlashAttentionV2Replayer._fix_param_with_row_invalid` | `PromptFlashAttentionTilingV2::FixParamWithRowInvalid` |
-| `PromptFlashAttentionV2Replayer._get_calc_block_nums_one_head` | `PromptFlashAttentionTilingV2::GetCalcBlockNumsOneHead` |
 | `PromptFlashAttentionV2Replayer._build_units` | `PromptFlashAttentionTilingV2::ComputeSplitNBSeq` |
 | `PromptFlashAttentionV2Replayer.replay_case` | `PromptFlashAttentionTilingV2::PromptFlashAttentionSplitNBSeq` |
 
-Exact spans are emitted in [fpa_source_analysis.json](fpa_source_analysis.json).
+Exact spans are emitted in [`fpa_source_analysis.json`](fpa_source_analysis.json).
+
+## Kernel Model
+
+The current shipped path uses:
+
+- entry function: `prompt_flash_attention_FIAS`
+- architecture dispatch: `prompt_flash_attention_FIAS_arch32`
+- mixed task contract: `KERNEL_TYPE_MIX_AIC_1_2`
+- lane model under `SPLIT_NBS_CUBE`: `vector + cube`
+
+That is why replay output now contains:
+
+- case-level `kernel_execution_model`
+- per-core `kernel_execution`
+
+These fields explain how one logical tiling group maps to two physical lanes that share the same host-side work window but participate in different vector/cube roles.
 
 ## Output Semantics
 
-- `logical_core_assignments`: source-level logical split groups
+- `logical_core_assignments`: host-side logical split groups
 - `core_assignments`: physical cores after lane expansion
-- `task_units`: finest replay unit with `(sid, nid, spos)`, token ranges, and block ranges
-- `task_segments`: contiguous task compression for human inspection
-- `task_summary`: compact one-line summary per physical core
-
-## Visualization Semantics
-
-For every physical core SVG:
-
-- the left bar shows unit-index coverage
-- the right panes show `Q x KV block` coverage grouped by `(batch, head)`
-- identical `vector / cube` panes are expected under `SPLIT_NBS_CUBE`, because both lanes share the same logical split group
+- `task_units`: finest replay unit with `(sid, nid, spos)` and block coverage
+- `task_segments`: contiguous compression for inspection
+- `kernel_execution_model`: kernel-side entry / dispatch / tiling-key context for the case
+- `core_assignments[].kernel_execution`: kernel execution context for one physical core
