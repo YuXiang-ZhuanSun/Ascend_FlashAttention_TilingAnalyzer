@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "flashattention-tiling-analyzer"
 version = "0.1.0"
-description = "Analyze and replay Ascend FlashAttention tiling behavior from real host-side source code."
+description = "Analyze and replay Ascend FlashAttention tiling behavior from real host and kernel source code."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
@@ -14,10 +14,12 @@ authors = [
 dependencies = []
 
 [project.scripts]
-flashattention-tiling-analyzer = "op_tiling_analyzer.cli:main"
+flashattention-tiling-analyzer = "flashattention_cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+py-modules = ["flashattention_cli", "flashattention_models", "flashattention_utils"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["flashattention_analyzers"]

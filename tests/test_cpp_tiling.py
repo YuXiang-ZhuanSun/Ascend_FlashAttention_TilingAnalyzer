@@ -9,7 +9,7 @@ import sys
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from op_tiling_analyzer.analyzers.cpp_tiling import CppTilingExtractor
+from flashattention_analyzers.cpp_tiling import CppTilingExtractor
 
 
 class CppTilingExtractorTests(unittest.TestCase):
