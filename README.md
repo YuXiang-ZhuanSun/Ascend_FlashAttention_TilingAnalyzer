@@ -1,7 +1,7 @@
 # FlashAttention Tiling Analyzer
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-11%2F11%20passed-16A34A)
+![Tests](https://img.shields.io/badge/tests-12%2F12%20passed-16A34A)
 ![Cases](https://img.shields.io/badge/cases-23%2F23%20passed-0F766E)
 ![Replay](https://img.shields.io/badge/replay-host%2Bkernel--aligned-1D4ED8)
 
@@ -38,7 +38,7 @@ This project turns those questions into source-backed artifacts.
 - The shipped fixture now reports a `manifest_sha256` and verifies file-level sync against the workspace source tree.
 - `analyze-source` inspects both `op_host` and `op_kernel`.
 - `replay-cases` emits both workload detail and kernel execution context.
-- The current sample validates `23 / 23` replay rows and `11 / 11` automated tests.
+- The current sample validates `23 / 23` replay rows and `12 / 12` automated tests.
 
 ## Outputs
 
@@ -62,21 +62,29 @@ For testcase replay:
 
 ```bash
 python -m pip install -e .
-python tiling_tool.py analyze-source --output docs/fpa_source_analysis.json
-python tiling_tool.py replay-cases --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
+python cli.py --input=testcases/fa_testcases.csv --output-dir=results/quickstart
 python -m unittest discover -s tests -v
 ```
 
-Explicit inputs are also supported:
+This writes:
+
+- `results/quickstart/replay.json`
+- `results/quickstart/summary.csv`
+- `results/quickstart/visualizations/*.svg`
+
+Advanced commands are still available when you want explicit artifact paths or source-only analysis:
 
 ```bash
-python tiling_tool.py replay-cases --source-root fixtures/prompt_flash_attention --cases testcases/fa_testcases.csv --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
+python tiling_tool.py analyze-source --output docs/fpa_source_analysis.json
+python tiling_tool.py replay-cases --source-root fixtures/prompt_flash_attention --input testcases/fa_testcases.csv --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
 ```
 
 ## Project Layout
 
+- `cli.py`: simple replay entry for `--input` + `--output-dir`
 - `fixtures/prompt_flash_attention/`: complete operator snapshot used for standalone delivery
 - `testcases/`: shipped testcase copy
+- `tiling_tool.py`: compatibility wrapper for advanced subcommands
 - `src/flashattention_cli.py`: CLI entry
 - `src/flashattention_models.py`: shared data models
 - `src/flashattention_utils.py`: helpers

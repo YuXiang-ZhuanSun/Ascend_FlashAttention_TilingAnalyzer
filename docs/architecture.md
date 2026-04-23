@@ -59,11 +59,13 @@ Responsibilities:
 
 Implemented in:
 
+- [`cli.py`](../cli.py)
 - [`tiling_tool.py`](../tiling_tool.py)
 - [`src/flashattention_cli.py`](../src/flashattention_cli.py)
 
 Responsibilities:
 
+- expose a simple replay-first entry with `--input` and `--output-dir`
 - expose `analyze-source`, `replay-cases`, and `visualize`
 - default to the shipped fixture and testcase copy
 - write JSON, CSV, and SVG outputs

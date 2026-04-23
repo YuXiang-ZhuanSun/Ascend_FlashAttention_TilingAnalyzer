@@ -1,7 +1,7 @@
 # FlashAttention Tiling Analyzer
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-11%2F11%20passed-16A34A)
+![Tests](https://img.shields.io/badge/tests-12%2F12%20passed-16A34A)
 ![Cases](https://img.shields.io/badge/cases-23%2F23%20passed-0F766E)
 ![Replay](https://img.shields.io/badge/replay-host%2Bkernel--aligned-1D4ED8)
 
@@ -27,7 +27,7 @@ FlashAttention. Decoded.
 - 当前 fixture 还会输出 `manifest_sha256`，并和工作区源码做文件级同步校验。
 - `analyze-source` 现在同时分析 `op_host` 和 `op_kernel`。
 - `replay-cases` 除了 workload，还会输出 `kernel_execution_model` 和每个 core 的 `kernel_execution`。
-- 当前样板通过 `23 / 23` 条 replay 行验证和 `11 / 11` 条自动化测试。
+- 当前样板通过 `23 / 23` 条 replay 行验证和 `12 / 12` 条自动化测试。
 
 ## 你能拿到什么
 
@@ -51,21 +51,29 @@ case replay 产物：
 
 ```bash
 python -m pip install -e .
-python tiling_tool.py analyze-source --output docs/fpa_source_analysis.json
-python tiling_tool.py replay-cases --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
+python cli.py --input=testcases/fa_testcases.csv --output-dir=results/quickstart
 python -m unittest discover -s tests -v
 ```
 
-如果你想显式指定输入：
+这条命令会生成：
+
+- `results/quickstart/replay.json`
+- `results/quickstart/summary.csv`
+- `results/quickstart/visualizations/*.svg`
+
+如果你想做源码分析，或者想显式控制产物路径，仍然可以用进阶命令：
 
 ```bash
-python tiling_tool.py replay-cases --source-root fixtures/prompt_flash_attention --cases testcases/fa_testcases.csv --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
+python tiling_tool.py analyze-source --output docs/fpa_source_analysis.json
+python tiling_tool.py replay-cases --source-root fixtures/prompt_flash_attention --input testcases/fa_testcases.csv --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
 ```
 
 ## 项目结构
 
+- `cli.py`：面向常用 replay 场景的简洁入口，主打 `--input` + `--output-dir`
 - `fixtures/prompt_flash_attention/`：可独立交付时使用的完整算子快照
 - `testcases/`：仓库内置 testcase 副本
+- `tiling_tool.py`：保留的兼容入口，适合进阶子命令
 - `src/flashattention_cli.py`：CLI 入口
 - `src/flashattention_models.py`：共享数据模型
 - `src/flashattention_utils.py`：工具函数

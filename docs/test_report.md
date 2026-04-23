@@ -12,13 +12,14 @@
 
 ```bash
 python -m unittest discover -s tests -v
+python cli.py --input testcases/fa_testcases.csv --output-dir results/quickstart
 python tiling_tool.py analyze-source --output docs/fpa_source_analysis.json
-python tiling_tool.py replay-cases --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
+python tiling_tool.py replay-cases --input testcases/fa_testcases.csv --output examples/fa_tiling_output.json --summary-csv examples/fa_tiling_summary.csv --visualize-dir examples/visualizations
 ```
 
 ## Results
 
-- Unit tests: `11 / 11` passed
+- Unit tests: `12 / 12` passed
 - CSV replay rows: `23 / 23` passed
 - Coverage validation: `23 / 23` with `coverage_ok=True`
 - Weight validation: `23 / 23` with `weighted_coverage_ok=True`
